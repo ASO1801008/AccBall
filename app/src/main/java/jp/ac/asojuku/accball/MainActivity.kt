@@ -11,6 +11,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.util.Log
 import android.util.Log.d
 import android.view.SurfaceHolder
@@ -40,9 +41,17 @@ class MainActivity : AppCompatActivity() ,
         setContentView(R.layout.activity_main)
         //リセットボタンで画面をリセットさせる
        reset_button.setOnClickListener{
-            result_text.text = "頑張れ！！"
-           ballX = 1000f;
+           //ゲーム状態のリセット
+           val pref = PreferenceManager.getDefaultSharedPreferences(this);
+           val editer = pref.edit();
+           editer.putInt("GAME_COUNT",0);
+           editer.apply();
+           result_image.setImageResource(R.drawable.fight_image);
+           result_text.text = "頑張れ！！"
+           ballX = surfaceWidth-50f;
            ballY = 50f;
+           surfaceCreated(null);
+
        };
         val holder = surfaceView.holder; // サーフェスホルダーを取得
         // サーフェスホルダーのコールバックに自クラスを追加
@@ -58,6 +67,10 @@ class MainActivity : AppCompatActivity() ,
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
+        //共有プリファレンスを利用する
+        val pref = PreferenceManager.getDefaultSharedPreferences(this);
+        val gameCount = pref.getInt("GAME_COUNT",0);
+
         //センサーの値が変わった時の処理をここに書く
         Log.d("TAG01","センサーが変わりました");
         //引数（イベント）の中身が何もなかったら何もせずに終了
@@ -118,6 +131,41 @@ class MainActivity : AppCompatActivity() ,
                 ballY = surfaceHeight -radius;
             }
 
+            //障害物に触れた時の処理
+            val gameCount = pref.getInt("GAME_COUNT",0);
+            if((ballX - radius)<850 && (ballX + radius)>600 && (ballY -radius)<450 && (ballY +radius)>400
+                || (ballX - radius)<250 && (ballX + radius)>200 && (ballY -radius)<550 && (ballY +radius)>450
+                || (ballX - radius)<900 && (ballX + radius)>650 && (ballY -radius)<1050 && (ballY +radius)>1000
+                || (ballX - radius)<470 && (ballX + radius)>170 && (ballY -radius)<1150 && (ballY +radius)>1100
+                || (ballX - radius)<500 && (ballX + radius)>400 && (ballY -radius)<350 && (ballY +radius)>250
+            ){
+                if(gameCount != 2){
+                vx = 0f;
+                vy = 0f;
+                result_text.text = "残念、、、"
+                result_image.setImageResource(R.drawable.zannen);
+                //共有プリファレンスの編集モードを取得
+                val editer = pref.edit();
+                editer.putInt("GAME_COUNT",1);
+                editer.apply();
+                }
+            };
+            //ゴールに触れた時の処理
+            val editer = pref.edit();
+
+            if((ballX - radius)<450 && (ballX + radius)>400 && (ballY -radius)<520 && (ballY +radius)>470
+                && gameCount != 1
+            ){
+                vx = 0f;
+                vy = 0f;
+                result_text.text = "ゴーール！"
+                result_image.setImageResource(R.drawable.main21);
+                //共有プリファレンスの編集モードを取得
+
+                editer.putInt("GAME_COUNT",2);
+
+            };
+            editer.apply();
             // キャンバスに描画
             this.drawCanvas();
         }
@@ -128,7 +176,7 @@ class MainActivity : AppCompatActivity() ,
         surfaceWidth = width;
         surfaceHeight = height;
         // ボールの初期位置を保存しておく
-        ballX = width.toFloat();
+        ballX = width-50f;
         ballY = 50f;
     }
 
@@ -233,6 +281,14 @@ class MainActivity : AppCompatActivity() ,
                 1150f, //右下のY座標
                 Paint().apply {
                     color = Color.BLACK; } // ペイントブラシのインスタンス
+            );
+            canvas.drawRect(
+                400f, // 左上のX座標
+                470f, // 左上のY座標
+                450f, // 右下のX座標
+                520f, //右下のY座標
+                Paint().apply {
+                    color = Color.RED; } // ペイントブラシのインスタンス
             );
 
 
