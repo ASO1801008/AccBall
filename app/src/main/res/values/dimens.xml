@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text_width">500px</dimen>
+    <dimen name="text_height">90px</dimen>
+    <dimen name="image_width">400px</dimen>
+    <dimen name="image_height">400px</dimen>
+    <dimen name="reset_button_width">400px</dimen>
+    <dimen name="reset_button_height">250px</dimen>
+</resources>

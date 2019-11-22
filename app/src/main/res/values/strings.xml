@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">AccBall</string>
+    <string name="text_value">頑張れ！！</string>
+    <string name="reset_button_value">RESET</string>
+</resources>
